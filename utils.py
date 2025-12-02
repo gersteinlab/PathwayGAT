@@ -251,7 +251,8 @@ def create_geometric_dataset(pathnodes, edge_index, labels):
         dataset.append(data)
     
     return dataset
-    
+
+# Split the dataset into given length (used in training dataset split)
 def random_split(dataset, lengths):
     # Determine the indices for the split
     indices = list(range(len(dataset)))
@@ -263,47 +264,3 @@ def random_split(dataset, lengths):
         splits.append([dataset[i] for i in split_indices])
         current += length
     return splits
-
-# Added by Weihao for constructing GraphSVX dataset
-def adjacency_to_association(adjacency):
-    association = []
-    for i in range(adjacency.shape[0]):
-        association.append([])
-        for j in range(adjacency.shape[1]):
-            if adjacency[i, j] > 0:
-                association[i].append(1)
-            else:
-                association[i].append(0)
-
-    return association
-
-# Added by Weihao for constructing GraphSVX dataset
-def create_GraphSVX_dataset(pathnodes, association, labels, sample_list_dir):
-    dataset = SimpleNamespace()
-    
-    if sample_list_dir is None:
-        dataset.x = pathnodes.permute(1, 0, 2)
-        edge_index = []
-
-        for i in range(dataset.x.shape[0]):
-            edge_index.append(association)
-
-        dataset.edge_index = torch.tensor(edge_index)
-        dataset.y = torch.tensor(labels)
-    else:
-        with open(sample_list_dir, 'rb') as f:
-            sample_list = pickle.load(f)
-        x = pathnodes.permute(1, 0, 2)
-        dataset.x = x
-        
-        edge_index = []
-        for i in range(dataset.x.shape[0]):
-            edge_index.append(association)
-        dataset.edge_index = torch.tensor(edge_index)
-
-        y = []
-        for i in sample_list:
-            y.append(labels.iloc[i])
-        dataset.y = torch.tensor(y)
-
-    return dataset
