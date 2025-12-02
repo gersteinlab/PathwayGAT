@@ -7,8 +7,6 @@ import random
 import pickle
 from types import SimpleNamespace
 
-# Added from Shaoke
-
 # Read pathway file and get genes related to pathway
 def parse_pathway_file(filename):
     df = pd.read_csv(filename, sep='\t', header=None, names=['pathway', 'genes'])
@@ -56,7 +54,7 @@ def construct_pathnodes(pathdict, subset_expr):
 
     return torch.tensor(pathnodes_list)
 
-# Read the file contains microbe-gene correlation
+# Read the file containing microbe-gene correlation
 def read_microbe_gene_corr(file_path, column_selector=2):
     # Read the file into a DataFrame with tab as the delimiter
     df = pd.read_csv(file_path, header=0, delimiter='\t')
@@ -99,6 +97,7 @@ def generate_microbe_features(microbe_abundance, microbe_gene_corr, cutoff, path
 
     return microbe_features
 
+# Read the file containing SNP-gene linkage
 def parse_snp_gene_link(file):
     snp_to_genes = {}
     with open(file, 'r') as f:
@@ -112,6 +111,7 @@ def parse_snp_gene_link(file):
                 snp_to_genes[snp] = genes
     return snp_to_genes
 
+# Construct input SNP dataset
 def snp_info(cdlinkfin, nclinkfin, snp_sample_fin, wpdict, sample_list):
     # Parse SNP to gene mappings for both coding and noncoding files
     cd_snp_to_genes = parse_snp_gene_link(cdlinkfin)
