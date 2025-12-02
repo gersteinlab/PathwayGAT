@@ -46,7 +46,7 @@ class PathwayGAT(torch.nn.Module):
         return self.classifier(x)
 
 # Model used in cross-validation and explanation
-class PathwayGAT3(torch.nn.Module):
+class PathwayGAT2(torch.nn.Module):
     def __init__(self, num_features, hidden_channels, num_nodes, num_classes, pooling=None, k_ratio=1.0):
         super(PathwayGAT3, self).__init__()
         self.pooling = pooling
