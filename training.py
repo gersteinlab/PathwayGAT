@@ -6,9 +6,8 @@ from torch_geometric.loader import DataLoader
 from sklearn.metrics import accuracy_score
 import pickle
 
-# Added from Shaoke (function defined by Weihao)
-
 def training_g(pathway_file, gene_file, meta_file, class_name, output_prefix, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -17,14 +16,15 @@ def training_g(pathway_file, gene_file, meta_file, class_name, output_prefix, ba
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    
+
+    # Construct the pathway network and parse gene expression value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
     
     subset_expr, opgene = parse_gene_expression(gene_file, wpgene, None)
 
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(subset_expr.shape[0]), sample_num)
     else:
@@ -32,7 +32,8 @@ def training_g(pathway_file, gene_file, meta_file, class_name, output_prefix, ba
     with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
         pickle.dump(sample_list, f)
     subset_expr = subset_expr.iloc[sample_list, ]
-    
+
+    # Construct dataset and target
     dataset1g = construct_pathnodes1g(wpdict, subset_expr)
     torch.save(dataset1g, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -126,6 +127,7 @@ def training_g(pathway_file, gene_file, meta_file, class_name, output_prefix, ba
 
 
 def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_name, output_prefix, microbe_corr_threshold, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -134,7 +136,8 @@ def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_n
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    
+
+    # Construct the pathway network and parse microbe abundance value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
@@ -142,7 +145,7 @@ def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_n
     microbe_gene_corr = read_microbe_gene_corr(microbe_gene_file, 2)
     microbe_abundance = pd.read_csv(microbe_file, header=0, delimiter='\t', index_col=0)
     
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
     else:
@@ -150,9 +153,9 @@ def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_n
     with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
         pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
-    
+
+    # Construct dataset and target
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
-    
     dataset1m = construct_pathnodes1m(wpdict, microbe_dict)
     torch.save(dataset1m, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -245,6 +248,7 @@ def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_n
     print(f"Test Loss: {test_loss}, Acc: {acc:.4f}")
 
 def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_file, class_name, output_prefix, microbe_corr_threshold, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -253,7 +257,8 @@ def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_f
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    
+
+    # Construct the pathway network and parse gene/microbe abundance value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
@@ -261,7 +266,7 @@ def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_f
     microbe_gene_corr = read_microbe_gene_corr(microbe_gene_file, 2)
     microbe_abundance = pd.read_csv(microbe_file, header=0, delimiter='\t', index_col=0)
 
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
     else:
@@ -269,10 +274,11 @@ def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_f
     with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
         pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
-
+    
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
     subset_expr, opgene = parse_gene_expression(gene_file, wpgene, sample_list)
     
+    # Construct dataset and target
     dataset2 = construct_pathnodes2(wpdict, subset_expr, microbe_dict)
     torch.save(dataset2, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -365,6 +371,7 @@ def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_f
     print(f"Test Loss: {test_loss}, Acc: {acc:.4f}")
 
 def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncoding, microbe_gene_file, meta_file, class_name, output_prefix, microbe_corr_threshold, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -373,7 +380,8 @@ def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncodin
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-    
+
+    # Construct the pathway network and parse SNP/microbe information value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
@@ -381,7 +389,7 @@ def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncodin
     microbe_gene_corr = read_microbe_gene_corr(microbe_gene_file, 2)
     microbe_abundance = pd.read_csv(microbe_file, header=0, delimiter='\t', index_col=0)
 
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
     else:
@@ -393,6 +401,7 @@ def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncodin
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
     snp_ncd_cd = snp_info(SNP_coding, SNP_noncoding, SNP_file, wpdict, sample_list)
     
+    # Construct dataset and target
     dataset3 = construct_pathnodes3msnp(wpdict, microbe_dict, snp_ncd_cd)
     torch.save(dataset3, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -485,6 +494,7 @@ def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncodin
     print(f"Test Loss: {test_loss}, Acc: {acc:.4f}")
 
 def training_gsnp(pathway_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, meta_file, class_name, output_prefix, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -494,13 +504,14 @@ def training_gsnp(pathway_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, 
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
+    # Construct the pathway network and parse SNP/gene information value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
     
     subset_expr, opgene = parse_gene_expression(gene_file, wpgene, None)
 
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(subset_expr.shape[0]), sample_num)
     else:
@@ -510,7 +521,8 @@ def training_gsnp(pathway_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, 
     subset_expr = subset_expr.iloc[sample_list, ]
     
     snp_ncd_cd = snp_info(SNP_coding, SNP_noncoding, SNP_file, wpdict, sample_list)
-    
+
+    # Construct dataset and target
     dataset3 = construct_pathnodes3gsnp(wpdict, subset_expr, snp_ncd_cd)
     torch.save(dataset3, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -604,6 +616,7 @@ def training_gsnp(pathway_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, 
 
 
 def training_mgsnp(pathway_file, microbe_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, microbe_gene_file, meta_file, class_name, output_prefix, microbe_corr_threshold, batch_size, hidden_channels, learning_rate, epochs, sample_num, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -613,6 +626,7 @@ def training_mgsnp(pathway_file, microbe_file, gene_file, SNP_file, SNP_coding, 
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
+    # Construct the pathway network and parse SNP/gene/microbe information value to the network
     wpgene, wpdict = parse_pathway_file(pathway_file)
     wpadj = calculate_adjacency(wpdict)
     wp_edge = adjacency_to_edge_index(wpadj)
@@ -620,7 +634,7 @@ def training_mgsnp(pathway_file, microbe_file, gene_file, SNP_file, SNP_coding, 
     microbe_gene_corr = read_microbe_gene_corr(microbe_gene_file, 2)
     microbe_abundance = pd.read_csv(microbe_file, header=0, delimiter='\t', index_col=0)
 
-    # Added by Weihao to downsample 
+    # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
     else:
@@ -633,7 +647,8 @@ def training_mgsnp(pathway_file, microbe_file, gene_file, SNP_file, SNP_coding, 
     
     subset_expr, opgene = parse_gene_expression(gene_file, wpgene, sample_list)
     snp_ncd_cd = snp_info(SNP_coding, SNP_noncoding, SNP_file, wpdict, sample_list)
-    
+
+    # Construct dataset and target
     dataset4 = construct_pathnodes4(wpdict, subset_expr, microbe_dict, snp_ncd_cd)
     torch.save(dataset4, f'{output_prefix}_nodes.pt')
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
