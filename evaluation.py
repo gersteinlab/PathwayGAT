@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import torch
 from torch_geometric.loader import DataLoader
 import numpy as np
-# Added from Shaoke (AUC modified by Weihao to improve on class imbalance)
 
 def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, hidden_channels, epochs, folds, learning_rate, multi_class, sample_list_dir, seed):
+    # Set seed for all packages
     torch.manual_seed(seed)
     random.seed(seed)
     np.random.seed(seed)
@@ -20,6 +20,8 @@ def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, h
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+
+    # Create dataset and target
     dataset = torch.load(dataset_file)
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
     label_df['label'], _ = pd.factorize(label_df[class_name])
@@ -45,7 +47,7 @@ def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, h
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
         
-        model = PathwayGAT3(num_features=dataset[0].x.shape[1], hidden_channels=hidden_channels, num_classes=len(set(label_df['label'])), num_nodes=dataset[0].x.shape[0]).to(device)
+        model = PathwayGAT2(num_features=dataset[0].x.shape[1], hidden_channels=hidden_channels, num_classes=len(set(label_df['label'])), num_nodes=dataset[0].x.shape[0]).to(device)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         criterion = torch.nn.CrossEntropyLoss()
@@ -75,7 +77,8 @@ def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, h
     true_labels = np.vstack(true_labels)
     predicted_probs=np.vstack(predicted_probs)
     np.savez(f'{output_prefix}_mat4auc_savez.npz', true=true_labels, predict=predicted_probs)
-    
+
+    # Create AUC and AUPR plots
     auc_scores=[]
     aupr_scores=[]
 
@@ -86,12 +89,12 @@ def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, h
         else:
             auc_scores.append(np.nan)
             aupr_scores.append(np.nan)
-
+        
     if multi_class: # With multiple classes: use the original code
         # Compute mean AUC and AUPR excluding NaN values
         mean_auc = np.nanmean(auc_scores)
         mean_aupr = np.nanmean(aupr_scores)
-        auc0 = roc_auc_score(true_labels, predicted_probs,multi_class='ovr', average='weighted') # Modified by Weihao to deal with imbalance class
+        auc0 = roc_auc_score(true_labels, predicted_probs,multi_class='ovr', average='weighted')
         aupr = average_precision_score(true_labels, predicted_probs)
         all_aucs.append(auc0)
         all_auprs.append(aupr)
@@ -128,7 +131,7 @@ def evaluation(dataset_file, meta_file, class_name, output_prefix, batch_size, h
         # Compute mean AUC and AUPR excluding NaN values
         mean_auc = np.nanmean(auc_scores)
         mean_aupr = np.nanmean(aupr_scores)
-        auc0 = roc_auc_score(true_labels, predicted_probs[:, 1],multi_class='ovr', average='weighted') #SKL change the index of class.. Modified by Weihao to deal with imbalance class
+        auc0 = roc_auc_score(true_labels, predicted_probs[:, 1],multi_class='ovr', average='weighted')
         aupr = average_precision_score(true_labels, predicted_probs[:, 1])
         all_aucs.append(auc0)
         all_auprs.append(aupr)
