@@ -1,13 +1,14 @@
 import torch
 import numpy as np
 import pandas as pd
-from model import PathwayGAT3
+from model import PathwayGAT2
 from utils import *
 from torch_geometric.explain import Explainer, GNNExplainer
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 
 def explanation(node_file, meta_file, model_file, pathway_file, class_name, output_prefix, hidden_channels, multi_class, sample_list_dir):
+    # Create dataset and target
     nodes = torch.load(node_file)
     nodes = nodes.to(torch.float32)
     label_df = pd.read_csv(meta_file, header=0, delimiter='\t', index_col=0)
@@ -24,11 +25,13 @@ def explanation(node_file, meta_file, model_file, pathway_file, class_name, outp
     dataset = create_geometric_dataset(nodes, wp_edge, label_df['label'])
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
+    # Load model from training steps
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     state_dict = torch.load(model_file, map_location=device)
-    model = PathwayGAT3(num_features=nodes.shape[2], hidden_channels=hidden_channels, num_classes=len(set(label_df['label'])), num_nodes=nodes.shape[0]).to(device)
+    model = PathwayGAT2(num_features=nodes.shape[2], hidden_channels=hidden_channels, num_classes=len(set(label_df['label'])), num_nodes=nodes.shape[0]).to(device)
     model.load_state_dict(state_dict)
 
+    # Explain the model with GNNExplainer
     if multi_class:
         explainer = Explainer(
             model=model,
