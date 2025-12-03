@@ -16,6 +16,40 @@ PathwayGAT requires the following Python package:
 
 You can install PathwayGAT by cloning the repository to your own computer:
 
-```
+```{bash}
 git clone https://github.com/gersteinlab/PathwayGAT.git
 ```
+
+## Run PathwayGAT
+
+After installation, you can run the program with the following command:
+
+```{bash}
+python main.py <module> <parameters>
+```
+
+There are three kinds of modules for PathwayGAT.
+
+- Training module: `gene`/`microbe`/`microbe_gene`/`microbe_SNP`/`gene_SNP`/`microbe_gene_SNP` (run different kinds of GAT training depending on the input dataset availability)
+- Evaluation module: `evaluation` (run cross-validation on the model parameters and plot ROC/PR curves)
+- Explanation module: `explanation` (run GNNExplainer to explain the model, outputting the importance measurement of each feature in each pathway and sample)
+
+You can also run the command `python main.py <module> -h` to display help information for each module, listing all the required and optional parameters for the framework.
+
+We also provide an example dataset in the `test` directory in this repository, along with a test bash script (`test_script.sh`) to run PathwayGAT on a small dataset. You can refer to these example files for the accepted format of different input files.
+
+## Output
+
+After running PathwayGAT training, evaluation, and explanation, you will obtain a list of output files:
+
+- `<output_prefix>.best_model.pth`: The best PathwayGAT model obtained during training based on validation loss. It could be the model after the last epoch, but not necessarily.
+- `<output_prefix>.final_model.pth`: The PathwayGAT model obtained after training for all the epochs.
+- `<output_prefix>_AUC.png`: The ROC curve for the cross-validation step.
+- `<output_prefix>_AUPR.png`: The PR curve for the cross-validation step.
+- `<output_prefix>_explanation_GNNExplainer_split.pt`: The explanation output from GNNExplainer. The result is a list of `Explanation` objects from `PyTorch Geometric`. Each `Explanation` object contains explanation value for each feature in each node as `node_mask` in the shape of (node, feature).
+
+## Reference & Contact
+
+This framework is under consideration for publication.
+
+If you have any questions, please reach out to zhao.weihao@yale.edu.
