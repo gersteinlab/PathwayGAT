@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pathwaygat"
+version = "1.0.6"
+authors = [
+  { name="Weihao Zhao", email="zhao.weihao@yale.edu" },
+  { name="Shaoke Lou", email="loushaoke@gmail.com" }
+]
+description = "PathwayGAT is a GAT-based framework that could integrate information from different biological modalities, such as genes, microbes, and genetic variations. PathwayGAT organizes different elements into pathways and train an explainable GAT network to perform different tasks and reveal the underlying biological mechanism."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+dependencies = ['numpy==1.26.4', 
+                'pandas==2.2.2',
+                'matplotlib==3.8.4',
+                'torch',
+                'torch_geometric',
+                'scikit-learn']
+
+[project.scripts]
+pathwaygat = "pathwaygat.main:main"
+
+[project.urls]
+Homepage = "https://github.com/gersteinlab/PathwayGAT"
+Issues = "https://github.com/gersteinlab/PathwayGAT/issues"
