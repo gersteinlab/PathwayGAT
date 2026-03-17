@@ -1,8 +1,5 @@
 echo start at `date`
 
-module load miniconda
-conda activate test_pathwaygat
-
 pathwaygat modules \
     --pathway_file pathway_info.txt \
     --gene_file gene_profile.txt \
