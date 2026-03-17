@@ -14,10 +14,13 @@ PathwayGAT requires the following Python package:
 
 ## Installation
 
-You can install PathwayGAT by cloning the repository to your own computer:
+It is recommended to create a separate conda environment for PathwayGAT. You can use the following command to install PathwayGAT from PyPI:
 
 ```{bash}
-git clone https://github.com/gersteinlab/PathwayGAT.git
+conda create -n test_pathwaygat python=3.9
+conda activate test_pathwaygat
+conda install numpy=1.26.4 pandas=2.2.2 matplotlib=3.8.4 torch-geometric scikit-learn
+pip install pathwaygat
 ```
 
 ## Run PathwayGAT
@@ -25,16 +28,16 @@ git clone https://github.com/gersteinlab/PathwayGAT.git
 After installation, you can run the program with the following command:
 
 ```{bash}
-python main.py <module> <parameters>
+pathwaygat <module> <parameters>
 ```
 
 There are three kinds of modules for PathwayGAT.
 
-- Training module: `gene`/`microbe`/`microbe_gene`/`microbe_SNP`/`gene_SNP`/`microbe_gene_SNP` (run different kinds of GAT training depending on the input dataset availability)
+- Training module: `gene`/`microbe`/`microbe_gene`/`microbe_SNP`/`gene_SNP`/`microbe_gene_SNP`/`modules` (run different kinds of GAT training depending on the input dataset availability)
 - Evaluation module: `evaluation` (run cross-validation on the model parameters and plot ROC/PR curves)
 - Explanation module: `explanation` (run GNNExplainer to explain the model, outputting the importance measurement of each feature in each pathway and sample)
 
-You can also run the command `python main.py <module> -h` to display help information for each module, listing all the required and optional parameters for the framework.
+You can also run the command `pathwaygat <module> -h` to display help information for each module, listing all the required and optional parameters for the framework.
 
 We also provide an example dataset in the `test` directory in this repository, along with a test bash script (`test_script.sh`) to run PathwayGAT on a small dataset. You can refer to these example files for the accepted format of different input files.
 
