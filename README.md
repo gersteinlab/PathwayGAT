@@ -39,7 +39,9 @@ There are three kinds of modules for PathwayGAT.
 
 You can also run the command `pathwaygat <module> -h` to display help information for each module, listing all the required and optional parameters for the framework.
 
-We also provide an example dataset in the `test` directory in this repository, along with a test bash script (`test_script.sh`) to run PathwayGAT on a small dataset. You can refer to these example files for the accepted format of different input files.
+We also provide two example datasets in the `test` directory in this repository, along with test bash scripts (`test_script.sh`) to run PathwayGAT. One dataset is an integration of gene expression, microbiome abundance, and SNP profile. The other dataset is a simulated dataset used to test the `modules` module of PathwayGAT. You can refer to these example files for the accepted format of different input files.
+
+The data and scripts needed to replicate the study is in the `manuscript` folder.
 
 ## Output
 
