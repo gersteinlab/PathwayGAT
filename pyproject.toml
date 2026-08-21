@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pathwaygat"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Weihao Zhao", email="zhao.weihao@yale.edu" },
   { name="Shaoke Lou", email="loushaoke@gmail.com" }
