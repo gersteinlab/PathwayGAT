@@ -27,10 +27,10 @@ def training_g(pathway_file, gene_file, meta_file, class_name, output_prefix, ba
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(subset_expr.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(subset_expr.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     subset_expr = subset_expr.iloc[sample_list, ]
 
     # Construct dataset and target
@@ -148,10 +148,10 @@ def training_m(pathway_file, microbe_file, microbe_gene_file, meta_file, class_n
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(microbe_abundance.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
 
     # Construct dataset and target
@@ -269,10 +269,10 @@ def training_mg(pathway_file, microbe_file, gene_file, microbe_gene_file, meta_f
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(microbe_abundance.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
     
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
@@ -392,10 +392,10 @@ def training_msnp(pathway_file, microbe_file, SNP_file, SNP_coding, SNP_noncodin
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(microbe_abundance.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
     
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
@@ -514,10 +514,10 @@ def training_gsnp(pathway_file, gene_file, SNP_file, SNP_coding, SNP_noncoding, 
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(subset_expr.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(subset_expr.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     subset_expr = subset_expr.iloc[sample_list, ]
     
     snp_ncd_cd = snp_info(SNP_coding, SNP_noncoding, SNP_file, wpdict, sample_list)
@@ -637,10 +637,10 @@ def training_mgsnp(pathway_file, microbe_file, gene_file, SNP_file, SNP_coding, 
     # Downsample if necessary
     if sample_num > 0:
         sample_list = random.sample(range(microbe_abundance.shape[0]), sample_num)
+        with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+            pickle.dump(sample_list, f)
     else:
         sample_list = range(microbe_abundance.shape[0])
-    with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-        pickle.dump(sample_list, f)
     microbe_abundance = microbe_abundance.iloc[sample_list, ]
     
     microbe_dict = generate_microbe_features(microbe_abundance, microbe_gene_corr, microbe_corr_threshold, wpdict)
@@ -776,10 +776,10 @@ def training_modules(pathway_file, gene_file, module_file_list, module_gene_file
         if idx == 0:
             if sample_num > 0:
                 sample_list = random.sample(range(module_abundance.shape[0]), sample_num)
+                with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
+                    pickle.dump(sample_list, f)
             else:
                 sample_list = range(module_abundance.shape[0])
-            with open(f'{output_prefix}_sample_index.pkl', 'wb') as f:
-                pickle.dump(sample_list, f)
     
         module_abundance = module_abundance.iloc[sample_list, ]
         module_dict = generate_microbe_features(module_abundance, module_gene_corr, corr_threshold, wpdict)
